@@ -33,13 +33,15 @@ Keras is required for loading Cifar10 data set
     SPECTRAL_NORM_UPDATE_OPS = "spectral_norm_update_ops"
     # call wrapping function, W_bar will be the spectral normed weight matrix
     W_bar = spectral_normed_weight(W, num_iters=1, update_collection=SPECTRAL_NORM_UPDATE_OPS)
+    # Get the update ops
+    spectral_norm_update_ops = tf.get_collection(SPECTRAL_NORM_UPDATE_OPS)
     ...
     # During training, run the update ops at the end of the iteration
     for iter in range(max_iters):
         # Training goes here
         ...
         # Update ops at the end
-        for update_op in update_ops:
+        for update_op in spectral_norm_update_ops:
             sess.run(update_op)
 
 For an example, see the file [test_sn_implementation.py](test_sn_implementation.py)
