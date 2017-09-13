@@ -28,10 +28,10 @@ def spectral_normed_weight(W, u=None, num_iters=1, update_collection=tf.GraphKey
   if update_collection is None:
     warnings.warn('Setting update_collection to None will make u being updated every W execution. This maybe undesirable'
                   '. Please consider using a update collection instead.')
+    sigma = tf.matmul(tf.matmul(v_final, W_reshaped), tf.transpose(u_final))[0, 0]
+    # sigma = tf.reduce_sum(tf.matmul(u_final, tf.transpose(W_reshaped)) * v_final)
+    W_bar = W_reshaped / sigma
     with tf.control_dependencies([u.assign(u_final)]):
-      sigma = tf.matmul(tf.matmul(v_final, W_reshaped), tf.transpose(u_final))[0, 0]
-      # sigma = tf.reduce_sum(tf.matmul(u_final, tf.transpose(W_reshaped)) * v_final)
-      W_bar = W_reshaped / sigma
       W_bar = tf.reshape(W_bar, W_shape)
   else:
     sigma = tf.matmul(tf.matmul(v_final, W_reshaped), tf.transpose(u_final))[0, 0]

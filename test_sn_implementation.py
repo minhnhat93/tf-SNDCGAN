@@ -38,7 +38,8 @@ for _ in range(1000):
   for update_op in update_ops:
     sess.run(update_op)
   stop = timeit.default_timer()
-  print('Iteration:', _, 'Sigma: ', sigma_, 'Max SVD: ', s_[0], 'Max SVD approx: ', s_bar_[0], 'Percentage Difference: ', abs(s_[0] - sigma_) / s_[0] * 100, 'Time: ', stop - start)
-correct_prediction = tf.equal(tf.argmax(y,1), tf.argmax(y_,1))
+  print('Iteration:', _, '\tW max SVD: ', s_[0], '\tW max SVD approx: ', sigma_, '\tPercentage difference: ',
+        abs(s_[0] - sigma_) / s_[0] * 100, '\tW_bar max SVD: ', s_bar_[0], '\tTime: ', stop - start)
+correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 print(sess.run(accuracy, feed_dict={x: mnist.test.images, y_: mnist.test.labels}))

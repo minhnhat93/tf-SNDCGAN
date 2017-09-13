@@ -8,8 +8,6 @@ https://github.com/pfnet-research/chainer-gan-lib
 
 This implementation works for tensorflow default data format "NHWC"
 
-
-
 # Spectral Normalization for Generative Adversarial Networks:
 This method enforces Lipschitz-1 condition on the Discrminator of Wasserstein-GAN
 by normalizing its weight matrices with their own respective maximum singular value.

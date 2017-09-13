@@ -53,8 +53,8 @@ optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.adam_alpha, beta1=FLAGS.a
 d_gvs = optimizer.compute_gradients(d_loss, var_list=d_vars)
 g_gvs = optimizer.compute_gradients(g_loss, var_list=g_vars)
 update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
+d_solver = optimizer.apply_gradients(d_gvs)
 with tf.control_dependencies(update_ops):
-  d_solver = optimizer.apply_gradients(d_gvs)
   g_solver = optimizer.apply_gradients(g_gvs)
 
 config = tf.ConfigProto()
@@ -88,6 +88,8 @@ while iter < FLAGS.max_iter:
     sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: True})
     save_images(sample_images, 'tmp/{:06d}.png'.format(iter))
   if (iter + 1) % FLAGS.evaluation_interval == 0:
+    sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: True})
+    save_images(sample_images, 'tmp/{:06d}.png'.format(iter))
     # Sample 50000 images for evaluation
     print("Evaluating...")
     num_images_to_eval = 50000
@@ -100,8 +102,6 @@ while iter < FLAGS.max_iter:
     eval_images = np.vstack(eval_images)
     eval_images = eval_images[:num_images_to_eval]
     eval_images = np.clip((eval_images + 1.0) * 127.5, 0.0, 255.0).astype(np.uint8)
-    # Save sampled image
-    save_images(eval_images[:64], 'tmp/{:06d}.png'.format(iter))
     # Calc Inception score
     eval_images = list(eval_images)
     inception_score_mean, inception_score_std = get_inception_score(eval_images)
