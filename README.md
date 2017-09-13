@@ -17,8 +17,15 @@ of Wasserstein GAN".
 The author uses a fast approximation method to compute the maximum singular value
 of weight matrices.
 
+# Quick run:
+
+Keras is required for loading Cifar10 data set
+
+    python3 train.py
+
 # How to use spectral normalization:
 
+    # Import spectral norm wrapper
     from libs.sn import spectral_normed_weight
     # Create weight variable
     W = tf.Variable(np.random.normal(size=[784, 10], scale=0.02), name='W', dtype=tf.float32)
