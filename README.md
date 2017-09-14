@@ -17,8 +17,15 @@ of Wasserstein GAN".
 The author uses a fast approximation method to compute the maximum singular value
 of weight matrices.
 
+# Quick run:
+
+Keras is required for loading Cifar10 data set
+
+    python3 train.py
+
 # How to use spectral normalization:
 
+    # Import spectral norm wrapper
     from libs.sn import spectral_normed_weight
     # Create weight variable
     W = tf.Variable(np.random.normal(size=[784, 10], scale=0.02), name='W', dtype=tf.float32)
@@ -26,13 +33,15 @@ of weight matrices.
     SPECTRAL_NORM_UPDATE_OPS = "spectral_norm_update_ops"
     # call wrapping function, W_bar will be the spectral normed weight matrix
     W_bar = spectral_normed_weight(W, num_iters=1, update_collection=SPECTRAL_NORM_UPDATE_OPS)
+    # Get the update ops
+    spectral_norm_update_ops = tf.get_collection(SPECTRAL_NORM_UPDATE_OPS)
     ...
     # During training, run the update ops at the end of the iteration
     for iter in range(max_iters):
         # Training goes here
         ...
         # Update ops at the end
-        for update_op in update_ops:
+        for update_op in spectral_norm_update_ops:
             sess.run(update_op)
 
 For an example, see the file [test_sn_implementation.py](test_sn_implementation.py)
