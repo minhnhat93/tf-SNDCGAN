@@ -58,9 +58,12 @@ At 60k iteration:
 Tested inception score at 60k iteration is: **7.05**. The reported inception
 score in the original repository is **7.41** at 100k iteration.
 # Issues:
-- GPU under-utilization: The original implementation of the author in chainer
+- ~~GPU under-utilization: The original implementation of the author in chainer
 uses 80%+ GPU most of the time. On an NVIDIA GTX 1080TI, their implementation
 run at nearly 3 iterations/s. This implementation use less than 50% GPU and
-run at less than 2 iterations/s.
+run at less than 2 iterations/s.~~ Solved. It was the global_step assignment
+that makes tensorflow create new assign node for graph each iteration, slow down the execution.
+This also made the graph become very large over time leading to gigantic event files.
+GPU utilization is now around 85+%
 
 - No Fréchet Inception Distance (https://arxiv.org/abs/1706.08500) evaluation yet.
