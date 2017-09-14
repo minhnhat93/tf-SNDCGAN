@@ -16,15 +16,15 @@ class DCGANGenerator(object):
   def __call__(self, z, is_training=True, **kwargs):
     with tf.variable_scope(self.scope):
       if self.use_batch_norm:
-        l0 = batch_norm(linear(z, 4 * 4 * 512, name='l0', stddev=0.02))
-        l0 = tf.reshape(l0, [self.batch_size, 4, 4, 512])
-        dc1 = self.hidden_activation(deconv2d(batch_norm(l0, name='bn0', is_training=is_training), [self.batch_size, 8, 8, 256], name='dc1', stddev=0.02))
-        dc2 = self.hidden_activation(deconv2d(batch_norm(dc1, name='bn1', is_training=is_training), [self.batch_size, 16, 16, 128], name='dc2', stddev=0.02))
-        dc3 = self.hidden_activation(deconv2d(batch_norm(dc2,name='bn2', is_training=is_training), [self.batch_size, 32, 32, 64], name='dc3', stddev=0.02))
+        l0  = self.hidden_activation(batch_norm(linear(z, 4 * 4 * 512, name='l0', stddev=0.02), name='bn0', is_training=is_training))
+        l0  = tf.reshape(l0, [self.batch_size, 4, 4, 512])
+        dc1 = self.hidden_activation(batch_norm(deconv2d( l0, [self.batch_size,  8,  8, 256], name='dc1', stddev=0.02), name='bn1', is_training=is_training))
+        dc2 = self.hidden_activation(batch_norm(deconv2d(dc1, [self.batch_size, 16, 16, 128], name='dc2', stddev=0.02), name='bn2', is_training=is_training))
+        dc3 = self.hidden_activation(batch_norm(deconv2d(dc2, [self.batch_size, 32, 32,  64], name='dc3', stddev=0.02), name='bn3', is_training=is_training))
         dc4 = self.output_activation(deconv2d(dc3, [self.batch_size, 32, 32, 3], 3, 3, 1, 1, name='dc4', stddev=0.02))
       else:
-        l0 = linear(z, 4 * 4 * 512, name='l0', stddev=0.02)
-        l0 = tf.reshape(l0, [self.batch_size, 4, 4, 512])
+        l0  = self.hidden_activation(linear(z, 4 * 4 * 512, name='l0', stddev=0.02))
+        l0  = tf.reshape(l0, [self.batch_size, 4, 4, 512])
         dc1 = self.hidden_activation(deconv2d(l0, [self.batch_size, 8, 8, 256], name='dc1', stddev=0.02))
         dc2 = self.hidden_activation(deconv2d(dc1, [self.batch_size, 16, 16, 128], name='dc2', stddev=0.02))
         dc3 = self.hidden_activation(deconv2d(dc2, [self.batch_size, 32, 32, 64], name='dc3', stddev=0.02))
