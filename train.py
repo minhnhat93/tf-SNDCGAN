@@ -15,7 +15,7 @@ flags.DEFINE_integer('batch_size', 64, '')
 flags.DEFINE_integer('max_iter', 100000, '')
 flags.DEFINE_integer('snapshot_interval', 1000, 'interval of snapshot')
 flags.DEFINE_integer('evaluation_interval', 10000, 'interval of evalution')
-flags.DEFINE_integer('display_interval', 100, 'interval of displaying log to console')
+flags.DEFINE_integer('display_interval', 1, 'interval of displaying log to console')
 flags.DEFINE_float('adam_alpha', 0.0002, 'learning rate')
 flags.DEFINE_float('adam_beta1', 0.0, 'beta1 in Adam')
 flags.DEFINE_float('adam_beta2', 0.9, 'beta2 in Adam')
@@ -31,6 +31,7 @@ discriminator = SNDCGAN_Discrminator(**config)
 data_set = Cifar10(batch_size=FLAGS.batch_size)
 
 global_step = tf.Variable(0, name="global_step", trainable=False)
+increase_global_step = global_step.assign(global_step + 1)
 is_training = tf.placeholder(tf.bool, shape=())
 z = tf.placeholder(tf.float32, shape=[None, generator.generate_noise().shape[1]])
 x_hat = generator(z, is_training=is_training)
@@ -67,29 +68,29 @@ if tf.train.latest_checkpoint('snapshots') is not None:
 
 np.random.seed(1337)
 sample_noise = generator.generate_noise()
-iter = sess.run(global_step)
+iteration = sess.run(global_step)
 start = timeit.default_timer()
 spectral_norm_update_ops = tf.get_collection(SPECTRAL_NORM_UPDATE_OPS)
 
 is_start_iteration = True
 inception_scores = []
-while iter < FLAGS.max_iter:
+while iteration < FLAGS.max_iter:
   _, g_loss_curr = sess.run([g_solver, g_loss], feed_dict={z: generator.generate_noise(), is_training: True})
   for _ in range(FLAGS.n_dis):
     _, d_loss_curr, summaries = sess.run([d_solver, d_loss, merged_summary_op],
                                          feed_dict={x: data_set.get_next_batch(), z: generator.generate_noise(), is_training: True})
-  if (iter + 1) % FLAGS.display_interval == 0 and not is_start_iteration:
-    summary_writer.add_summary(summaries, global_step=iter)
+  if (iteration + 1) % FLAGS.display_interval == 0 and not is_start_iteration:
+    summary_writer.add_summary(summaries, global_step=iteration)
     stop = timeit.default_timer()
-    print('Iter {}: d_loss = {:4f}, g_loss = {:4f}, time = {:2f}s'.format(iter, d_loss_curr, g_loss_curr, stop - start))
+    print('Iter {}: d_loss = {:4f}, g_loss = {:4f}, time = {:2f}s'.format(iteration, d_loss_curr, g_loss_curr, stop - start))
     start = stop
-  if (iter + 1) % FLAGS.snapshot_interval == 0 and not is_start_iteration:
-    saver.save(sess, 'snapshots/model.ckpt', global_step=iter)
+  if (iteration + 1) % FLAGS.snapshot_interval == 0 and not is_start_iteration:
+    saver.save(sess, 'snapshots/model.ckpt', global_step=iteration)
     sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: True})
-    save_images(sample_images, 'tmp/{:06d}.png'.format(iter))
-  if (iter + 1) % FLAGS.evaluation_interval == 0:
+    save_images(sample_images, 'tmp/{:06d}.png'.format(iteration))
+  if (iteration + 1) % FLAGS.evaluation_interval == 0:
     sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: True})
-    save_images(sample_images, 'tmp/{:06d}.png'.format(iter))
+    save_images(sample_images, 'tmp/{:06d}.png'.format(iteration))
     # Sample 50000 images for evaluation
     print("Evaluating...")
     num_images_to_eval = 50000
@@ -112,6 +113,6 @@ while iter < FLAGS.max_iter:
   # Update Spectral Norm left vectors
   for update_op in spectral_norm_update_ops:
     sess.run(update_op)
-  iter += 1
-  sess.run(global_step.assign(iter))
+  iteration += 1
+  sess.run(increase_global_step)
   is_start_iteration = False
