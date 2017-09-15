@@ -47,16 +47,12 @@ Keras is required for loading Cifar10 data set
 For an example, see the file [test_sn_implementation.py](test_sn_implementation.py)
 
 # Training curve:
-At around 60k iteration:
-
 ![](img/loss_curve.png)
 # Generated image samples on Cifar10:
-At 60k iteration:
-
-![](img/059999.png)
+![](img/099999.png)
 # Inception score:
-Tested inception score at 60k iteration is: **7.05**. The reported inception
-score in the original repository is **7.41** at 100k iteration.
+At 100k iteration: Mean 7.24, std 0.05
+The official github repostiory has an inception score of 7.41
 # Issues:
 - ~~GPU under-utilization: The original implementation of the author in chainer
 uses 80%+ GPU most of the time. On an NVIDIA GTX 1080TI, their implementation
