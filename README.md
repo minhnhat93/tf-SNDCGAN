@@ -52,6 +52,7 @@ For an example, see the file [test_sn_implementation.py](test_sn_implementation.
 ![](img/099999.png)
 # Inception score:
 At 100k iteration: Mean 7.24, std 0.05
+
 The official github repostiory has an inception score of 7.41
 # Issues:
 - ~~GPU under-utilization: The original implementation of the author in chainer
