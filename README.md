@@ -51,8 +51,9 @@ For an example, see the file [test_sn_implementation.py](test_sn_implementation.
 # Generated image samples on Cifar10:
 ![](img/099999.png)
 # Inception score:
-At 100k iteration: Mean 7.24, std 0.05
-
+After using in place batch norm update and use the optimal training parameters
+from the paper, I was able to match their claimed Inception score at 100k iteration:
+**7.4055686** +/- 0.087728456
 The official github repostiory has an inception score of 7.41
 # Issues:
 - ~~GPU under-utilization: The original implementation of the author in chainer

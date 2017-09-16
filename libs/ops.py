@@ -104,7 +104,7 @@ def linear(input_, output_size, name="linear", spectral_normed=False, update_col
         return mul
 
 
-def batch_norm(input, is_training=True, momentum=0.9, epsilon=1e-5, in_place_update=False, name="batch_norm"):
+def batch_norm(input, is_training=True, momentum=0.9, epsilon=2e-5, in_place_update=True, name="batch_norm"):
   if in_place_update:
     return tf.contrib.layers.batch_norm(input,
                                         decay=momentum,

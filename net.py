@@ -5,12 +5,13 @@ from libs.ops import *
 
 class DCGANGenerator(object):
 
-  def __init__(self, hidden_dim=128, batch_size=64, hidden_activation=tf.nn.relu, output_activation=tf.nn.tanh, use_batch_norm=True, scope='generator', **kwargs):
+  def __init__(self, hidden_dim=128, batch_size=64, hidden_activation=tf.nn.relu, output_activation=tf.nn.tanh, use_batch_norm=True, z_distribution='uniform', scope='generator', **kwargs):
     self.hidden_dim = hidden_dim
     self.batch_size = batch_size
     self.hidden_activation = hidden_activation
     self.output_activation = output_activation
     self.use_batch_norm = use_batch_norm
+    self.z_distribution = z_distribution
     self.scope = scope
 
   def __call__(self, z, is_training=True, **kwargs):
@@ -33,7 +34,12 @@ class DCGANGenerator(object):
     return x
 
   def generate_noise(self):
-    return np.random.randn(self.batch_size, self.hidden_dim)
+    if self.z_distribution == 'normal':
+      return np.random.randn(self.batch_size, self.hidden_dim).astype(np.float32)
+    elif self.z_distribution == 'uniform' :
+      return np.random.uniform(-1, 1, (self.batch_size, self.hidden_dim)).astype(np.float32)
+    else:
+      raise NotImplementedError
 
 
 class SNDCGAN_Discrminator(object):

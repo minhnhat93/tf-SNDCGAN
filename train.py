@@ -53,10 +53,8 @@ g_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='generator')
 optimizer = tf.train.AdamOptimizer(learning_rate=FLAGS.adam_alpha, beta1=FLAGS.adam_beta1, beta2=FLAGS.adam_beta2)
 d_gvs = optimizer.compute_gradients(d_loss, var_list=d_vars)
 g_gvs = optimizer.compute_gradients(g_loss, var_list=g_vars)
-update_ops = tf.get_collection(tf.GraphKeys.UPDATE_OPS)
 d_solver = optimizer.apply_gradients(d_gvs)
-with tf.control_dependencies(update_ops):
-  g_solver = optimizer.apply_gradients(g_gvs)
+g_solver = optimizer.apply_gradients(g_gvs)
 
 config = tf.ConfigProto()
 config.gpu_options.allow_growth = True
