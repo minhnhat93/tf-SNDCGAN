@@ -16,10 +16,10 @@ flags.DEFINE_integer('max_iter', 100000, '')
 flags.DEFINE_integer('snapshot_interval', 1000, 'interval of snapshot')
 flags.DEFINE_integer('evaluation_interval', 10000, 'interval of evalution')
 flags.DEFINE_integer('display_interval', 100, 'interval of displaying log to console')
-flags.DEFINE_float('adam_alpha', 0.0002, 'learning rate')
-flags.DEFINE_float('adam_beta1', 0.0, 'beta1 in Adam')
-flags.DEFINE_float('adam_beta2', 0.9, 'beta2 in Adam')
-flags.DEFINE_integer('n_dis', 5, 'n discrminator train')
+flags.DEFINE_float('adam_alpha', 0.0001, 'learning rate')
+flags.DEFINE_float('adam_beta1', 0.5, 'beta1 in Adam')
+flags.DEFINE_float('adam_beta2', 0.999, 'beta2 in Adam')
+flags.DEFINE_integer('n_dis', 1, 'n discrminator train')
 
 mkdir('tmp')
 
@@ -46,7 +46,7 @@ g_loss = tf.reduce_mean(tf.nn.softplus(-d_fake))
 d_loss_summary_op = tf.summary.scalar('d_loss', d_loss)
 g_loss_summary_op = tf.summary.scalar('g_loss', g_loss)
 merged_summary_op = tf.summary.merge_all()
-summary_writer = tf.summary.FileWriter('snapshots', graph=tf.get_default_graph())
+summary_writer = tf.summary.FileWriter('snapshots')
 
 d_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='critic')
 g_vars = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='generator')
@@ -68,6 +68,7 @@ if tf.train.latest_checkpoint('snapshots') is not None:
 
 np.random.seed(1337)
 sample_noise = generator.generate_noise()
+np.random.seed()
 iteration = sess.run(global_step)
 start = timeit.default_timer()
 spectral_norm_update_ops = tf.get_collection(SPECTRAL_NORM_UPDATE_OPS)
@@ -86,10 +87,10 @@ while iteration < FLAGS.max_iter:
     start = stop
   if (iteration + 1) % FLAGS.snapshot_interval == 0 and not is_start_iteration:
     saver.save(sess, 'snapshots/model.ckpt', global_step=iteration)
-    sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: True})
+    sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: False})
     save_images(sample_images, 'tmp/{:06d}.png'.format(iteration))
   if (iteration + 1) % FLAGS.evaluation_interval == 0:
-    sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: True})
+    sample_images = sess.run(x_hat, feed_dict={z: sample_noise, is_training: False})
     save_images(sample_images, 'tmp/{:06d}.png'.format(iteration))
     # Sample 50000 images for evaluation
     print("Evaluating...")
@@ -97,9 +98,11 @@ while iteration < FLAGS.max_iter:
     eval_images = []
     num_batches = num_images_to_eval // FLAGS.batch_size + 1
     print("Calculating Inception Score. Sampling {} images...".format(num_images_to_eval))
+    np.random.seed(0)
     for _ in range(num_batches):
-      images = sess.run(x_hat, feed_dict={z: generator.generate_noise(), is_training: True})
+      images = sess.run(x_hat, feed_dict={z: generator.generate_noise(), is_training: False})
       eval_images.append(images)
+    np.random.seed()
     eval_images = np.vstack(eval_images)
     eval_images = eval_images[:num_images_to_eval]
     eval_images = np.clip((eval_images + 1.0) * 127.5, 0.0, 255.0).astype(np.uint8)
