@@ -70,7 +70,7 @@ def deconv2d(input_, output_shape,
       return deconv
 
 
-def lrelu(x, leak=0.2):
+def lrelu(x, leak=0.1):
   return tf.maximum(x, leak * x)
 
 
