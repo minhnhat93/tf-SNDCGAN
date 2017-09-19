@@ -9,7 +9,7 @@ def _l2normalize(v, eps=1e-12):
   return v / (tf.reduce_sum(v ** 2) ** 0.5 + eps)
 
 
-def spectral_normed_weight(W, u=None, num_iters=1, update_collection=tf.GraphKeys.UPDATE_OPS, with_sigma=False):
+def spectral_normed_weight(W, u=None, num_iters=1, update_collection=None, with_sigma=False):
   # Usually num_iters = 1 will be enough
   W_shape = W.shape.as_list()
   W_reshaped = tf.reshape(W, [-1, W_shape[-1]])

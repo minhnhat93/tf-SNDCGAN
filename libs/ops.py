@@ -10,7 +10,7 @@ def scope_has_variables(scope):
 
 def conv2d(input_, output_dim,
            k_h=4, k_w=4, d_h=2, d_w=2, stddev=None,
-           name="conv2d", spectral_normed=False, update_collection=tf.GraphKeys.UPDATE_OPS, with_w=False, padding="SAME"):
+           name="conv2d", spectral_normed=False, update_collection=None, with_w=False, padding="SAME"):
   # Glorot intialization
   # For RELU nonlinearity, it's sqrt(2./(n_in)) instead
   fan_in = k_h * k_w * input_.get_shape().as_list()[-1]
@@ -40,7 +40,7 @@ def conv2d(input_, output_dim,
 
 def deconv2d(input_, output_shape,
              k_h=4, k_w=4, d_h=2, d_w=2, stddev=None,
-             name="deconv2d", spectral_normed=False, update_collection=tf.GraphKeys.UPDATE_OPS, with_w=False, padding="SAME"):
+             name="deconv2d", spectral_normed=False, update_collection=None, with_w=False, padding="SAME"):
   # Glorot initialization
   # For RELU nonlinearity, it's sqrt(2./(n_in)) instead
   fan_in = k_h * k_w * input_.get_shape().as_list()[-1]
@@ -74,7 +74,7 @@ def lrelu(x, leak=0.1):
   return tf.maximum(x, leak * x)
 
 
-def linear(input_, output_size, name="linear", spectral_normed=False, update_collection=tf.GraphKeys.UPDATE_OPS, stddev=None, bias_start=0.0, with_biases=True,
+def linear(input_, output_size, name="linear", spectral_normed=False, update_collection=None, stddev=None, bias_start=0.0, with_biases=True,
            with_w=False):
   shape = input_.get_shape().as_list()
 

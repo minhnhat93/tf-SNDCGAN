@@ -23,7 +23,6 @@ flags.DEFINE_integer('n_dis', 1, 'n discrminator train')
 
 mkdir('tmp')
 
-SPECTRAL_NORM_UPDATE_OPS = 'spectral_norm_update_ops'
 INCEPTION_FILENAME = 'inception_score.pkl'
 config = FLAGS.__flags
 generator = DCGANGenerator(**config)
@@ -37,7 +36,7 @@ z = tf.placeholder(tf.float32, shape=[None, generator.generate_noise().shape[1]]
 x_hat = generator(z, is_training=is_training)
 x = tf.placeholder(tf.float32, shape=x_hat.shape)
 
-d_fake = discriminator(x_hat, update_collection=SPECTRAL_NORM_UPDATE_OPS)
+d_fake = discriminator(x_hat, update_collection=None)
 # Don't need to collect on the second call, put NO_OPS
 d_real = discriminator(x, update_collection="NO_OPS")
 # Softplus at the end as in the official code of author at chainer-gan-lib github repository
@@ -69,7 +68,6 @@ sample_noise = generator.generate_noise()
 np.random.seed()
 iteration = sess.run(global_step)
 start = timeit.default_timer()
-spectral_norm_update_ops = tf.get_collection(SPECTRAL_NORM_UPDATE_OPS)
 
 is_start_iteration = True
 inception_scores = []
@@ -78,6 +76,9 @@ while iteration < FLAGS.max_iter:
   for _ in range(FLAGS.n_dis):
     _, d_loss_curr, summaries = sess.run([d_solver, d_loss, merged_summary_op],
                                          feed_dict={x: data_set.get_next_batch(), z: generator.generate_noise(), is_training: True})
+  # increase global step after updating G and D
+  # before saving the model so that it will be written into the ckpt file
+  sess.run(increase_global_step)
   if (iteration + 1) % FLAGS.display_interval == 0 and not is_start_iteration:
     summary_writer.add_summary(summaries, global_step=iteration)
     stop = timeit.default_timer()
@@ -111,9 +112,5 @@ while iteration < FLAGS.max_iter:
     inception_scores.append(dict(mean=inception_score_mean, std=inception_score_std))
     with open(INCEPTION_FILENAME, 'wb') as f:
       pickle.dump(inception_scores, f)
-  # Update Spectral Norm left vectors
-  for update_op in spectral_norm_update_ops:
-    sess.run(update_op)
   iteration += 1
-  sess.run(increase_global_step)
   is_start_iteration = False
