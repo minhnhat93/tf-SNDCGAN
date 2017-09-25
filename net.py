@@ -5,7 +5,7 @@ from libs.ops import *
 
 class DCGANGenerator(object):
 
-  def __init__(self, hidden_dim=128, batch_size=64, hidden_activation=tf.nn.relu, output_activation=tf.nn.tanh, use_batch_norm=True, z_distribution='uniform', scope='generator', **kwargs):
+  def __init__(self, hidden_dim=128, batch_size=64, hidden_activation=tf.nn.relu, output_activation=tf.nn.tanh, use_batch_norm=True, z_distribution='normal', scope='generator', **kwargs):
     self.hidden_dim = hidden_dim
     self.batch_size = batch_size
     self.hidden_activation = hidden_activation
